@@ -1,0 +1,335 @@
+//************************************************************************//
+//************************************************************************//
+// Noms des membres de l'équipe ******************************************//
+// 1. 
+// 2. 
+// 3. 
+// 4. 
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 1 (Total : 2.5 points)
+// Analyser le processus suivant.
+PUB1 = (compute -> connect -> pub -> PUB1).
+SUB1 = (connect -> sub -> compute -> SUB1).
+BROKER1 = (connect -> PUBSUB),
+  PUBSUB = (pub -> queue -> BROKER1
+	       | sub -> dequeue -> BROKER1).
+||SYSTEM1 = (PUB1 || SUB1 || BROKER1).
+
+//************************************************************************//
+// Question 1.1 (2.5 points)
+// Faites dessinez la composition parallèle via le menu Draw.
+// Expliquer pourquoi la composition parallèle donne un seul état.
+// Réponse : 
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 2 (Total : 2.5 points)
+// Analyser le processus suivant.
+PUB2 = (supply -> connect -> pub -> PUB2).
+SUB2 = (connect -> sub -> consume -> SUB2).
+BROKER2 = (connect -> PUBSUB),
+  PUBSUB = (pub -> queue -> BROKER2
+	       | sub -> dequeue -> BROKER2).
+||SYSTEM2 = (PUB2 || SUB2 || BROKER2).
+
+//************************************************************************//
+// Question 2.1 (2.5 points)
+// En vous appuyant sur les actions partagées lors de la composition
+// parallèle, dites si les actions connect au processus BROKER2 se font de 
+// façon synchrone ou asynchrone entre le pub et le sub.
+// Réponse : 
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 3 (Total : 5 points)
+// 3. Analyser le processus suivant.
+PUB3 = (supply -> connect_pub -> pub -> PUB3).
+SUB3 = (connect_sub -> sub -> consume -> SUB3).
+BROKER3 = ({connect_sub, connect_pub} -> PUBSUB),
+  PUBSUB = (pub -> queue -> BROKER3
+	       | sub -> dequeue -> BROKER3).
+||SYSTEM3 = (PUB3 || SUB3 || BROKER3).
+
+//************************************************************************//
+// Question 3.1 (2.5 points)
+// Donnez une spécification FSP différente, mais produisant le même LTSA.
+// Réponse :
+
+//************************************************************************//
+// Question 3.2 (2.5 points)
+// Deux spécifications FSP syntaxiquement différentes peuvent donner le même LTSA.
+// Réponse :
+// Justification :
+
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 4 (Total : 10 points)
+// Dans le processus SYSTEM3, il est possible de consommer un message avant 
+// qu'il ne soit produit.
+
+//************************************************************************//
+// Question 4.1 (1 point)
+// Définissez une constante N égale à 2 représentant la taille du buffer 
+// du broker
+// Réponse :
+
+//************************************************************************//
+// Question 4.2 (8 points)
+// En conservant les mêmes actions que le processus BROKER3,
+// définissez le processus BROKER4 qui empêche la consommation avant la production
+// et qui permet d'avoir au plus N messages stockés par le broker.
+// Donc les publishers ne peuvent plus publier quand N messages sont présents
+// sur le BROKER.
+// Réponse :
+
+//************************************************************************//
+// Question 4.3 (1 point)
+// Définissez le processus SYSTEM4 qui met en parallèle PUB3, SUB3 et BROKER4.
+// Vérifiez le blocage et le progrès.
+// Réponse :
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 5 (Total : 10 points)
+
+//************************************************************************//
+// Question 5.1 (1 point)
+// Définissez ces deux constantes :
+// 1. NB_P = 2 : représentant le nombre de publishers
+// 2. NB_S = 3 : représentant le nombre de subscribers
+// Réponse :
+
+//************************************************************************//
+// Question 5.2 (1 point)
+// Défnissez deux ranges R_NB_P et R_NB_S.
+// 1. R_NB_P = 1 à P : représentant l'identifiant de chacun des publishers
+// 2. R_NB_S = 1 à S : représentant l'identifiant de chacun des subscribers.
+// Réponse :
+
+//************************************************************************//
+// Question 5.3 (1 points)
+// Défnissez deux ensembles P et S
+// 1. P contenant uniquement le préfixe "publisher"
+//      et représentant un préfixe pour les actions des publishers
+// 2. S contenant uniquement le préfixe "subscriber"
+//      et représentant un préfixe pour les actions des subscribers
+// Réponse :
+
+
+//************************************************************************//
+// Question 5.4 (3 points)
+// Défnissez ces trois ensembles.
+// 1. PREFIXES_PUB : cet ensemble représente l'ensemble des préfixes des
+//                   publishers. Il contient un seul élément qui est la
+//                   concaténation de l'ensemble P avec la range R_NB_P.
+// 2. PREFIXES_SUB : cet ensemble représente l'ensemble des préfixes des
+//                   subscribers. Il contient un seul élément qui est la
+//                   concaténation de l'ensemble S avec la range R_NB_S.
+// 3. PREFIXES : cet ensemble représente l'ensemble des préfixes possibles.
+//               Il contient deux éléments PREFIXES_PUB et PREFIXES_SUB.
+// Réponse :
+
+//************************************************************************//
+// Question 5.5 (4 points)
+// Définissez le processus SYSTEM5 qui met en parallèle PREFIXES_PUB PUB3,
+// PREFIXES_SUB SUB3 et qui se partage PREFIXES BROKER4.
+// Vérifiez le blocage et le progrès.
+// Réponse :
+
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 6 (Total : 10 points)
+
+//************************************************************************//
+// Question 6.1 (2 points)
+// Utiliser le menu Check -> Run -> Default. Que remarquez-vous avec les 
+// actions queue et dequeue préfixées? Comment faire pour que ces actions
+// internes au BROKER4 (queue et dequeue) soient centralisées? Autrement
+// dit, par exemple, 1.queue et 2.queue devraient désigner la même action?
+// Réponse :
+
+//************************************************************************//
+// Question 6.2 (8 points)
+// Définissez un processus SYSTEM6 à partir du processus SYSTEM5 dans lequel
+// vous utilisez l'opérateur de renommage afin de renommer les actions 
+// préfixées queue et dequeue de telle façon à ce qu'elles soient centralisées.
+// Vérifiez le blocage et le progrès.
+// Réponse :
+
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 7 (Total : 20 points)
+
+//************************************************************************//
+// Question 7.1 (2 points)
+// En utilisant le menu Check -> Run -> Default, 
+// que remarquez-vous au niveau des actions?
+// Lesquels ne sont pas synchronisés et pourquoi?
+// Réponse :
+
+//************************************************************************//
+// Question 7.2 (2 points)
+// Définissez deux ensembles.
+// 1. PUB_LABELS : l'ensemble des actions partagées entre les publishers
+//                 et le broker, c.-à-d., connect_pub et pub.
+// 1. SUB_LABELS : l'ensemble des actions partagées entre les subscribers
+//                 et le broker, c.-à-d., connect_sub et sub.
+// Réponse :
+
+//************************************************************************//
+// Question 7.3 (9 points)
+// En utilisant uniquement le processus STOP, PREFIXES_SUB, PREFIXES_PUB,
+// PUB_LABELS, SUB_LABELS et l'opérateur d'extension de l'alphabet +,
+// définissez un processus FORBIDDEN qui mis en parallèle avec le broker 
+// empêchera les actions identifiées en 8.1 d'être exécutées.
+// Réponse :
+
+//************************************************************************//
+// Question 7.4 (2 points)
+// Définissez un processus SYSTEM7 qui met en parallèle PREFIXES_PUB PUB3,
+// PREFIXES_SUB SUB3, FORBIDDEN et se partage PREFIXES BROKER4.
+// N'oubliez pas les renommages de queue et dequeue.
+// Réponse :
+
+//************************************************************************//
+// Question 7.5 (5 points)
+// Valider le blocage et le progrès. L'un des deux n'est pas respecté.
+// Expliquez pourquoi? Que pouvez-vous en conclure sur votre processus
+// FORBIDDEN?
+// Réponse :
+
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 8 (Total : 10 points)
+
+//************************************************************************//
+// Question 8.1 (5 points)
+// Afin de valider le processus FORBIDDEN, écrivez une propriété 
+// FORBIDDEN_VALIDATOR qui valide que FORBIDDEN fonctionne.
+// Autrement dit, toutes les actions identifiées en 7.1 mènent à l'état
+// d'erreur, tandis que toutes les autres actions sont permis.
+// Réponse :
+
+//************************************************************************//
+// Question 8.2 (2 points)
+// Définissez un processus SYSTEM8 qui met en parallèle SYSTEM7 et
+// FORBIDDEN_VALIDATOR.
+// Lors de la compilation, FORBIDDEN_VALIDATOR doit être respectée.
+// N'oubliez pas les renommages de queue et dequeue.
+// Réponse :
+
+//************************************************************************//
+// Question 8.3 (2 points)
+// Comparer SYSTEM7 et SYSTEM8 en terme de nombre d'états, de nombre de
+// transitions, de blocage et de progrès.
+// Expliquez vos résultats.
+// Réponse :
+
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 9 (Total : 10 points)
+
+//************************************************************************//
+// Question 9.1 (7 points)
+// À partir de la question 7, nous avons des transitions "indésirables".
+// Définissez un processus SYSTEM9 égale à SYSTEM8 avec un masquage des 
+// actions indésirables déterminées à la question 7.1.
+// Réponse :
+
+//************************************************************************//
+// Question 9.2 (3 points)
+// Comparer SYSTEM8 et SYSTEM9 en terme de blocage et de progrès.
+// Expliquez vos résultats.
+// Réponse :
+
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 10 (Total : 10 points)
+
+//************************************************************************//
+// Question 10.1 (1 point)
+// Définissez un ensemble APPS contenant les étiquettes i et t représentant 
+// respectivement une application d'indemnisation et de tarification.
+// Réponse :
+
+
+//************************************************************************//
+// Question 10.2 (9 points)
+// Définissez un processus SYSTEM10 qui met en parallèle les mêmes processus
+// que SYSTEM8, MAIS qui les préfixe tous par l'ensemble APPS.
+// Il faut conserver et ajuster les renommages de queue et dequeue,
+// et les masquages ajoutés à la question 9.1.
+// 
+// Vérfiez l'absence de blocage et le progrès.
+// Réponse :
+//************************************************************************//
+//************************************************************************//
+
+
+//************************************************************************//
+//************************************************************************//
+// Question 11 (Total : 10 points)
+
+//************************************************************************//
+// Question 11.1 (2 points)
+// En utilisant le menu Check -> Run -> Default, que remarquez-vous au 
+// niveau des actions? Est-il possible pour un subscriber i de consommer
+// un message de t? Et vice versa? Pourquoi?
+// Réponse :
+
+//************************************************************************//
+// Question 11.2 (8 points)
+// Définissez un controlleur CONTROLLER_SUB_SAME_ORIGIN_PUB qui via les 
+// actions connect_pub et connect_sub s'assurera d'une consommation adéquate.
+// Réponse :
+
+//************************************************************************//
+// Question 11.3 (1 point)
+// Définissez un processus SYSTEM11 qui met en parallèle SYSTEM10 et 
+// CONTROLLER_SUB_SAME_ORIGIN_PUB.
+//
+// En utilisant le menu Check -> Run -> Default, assurez-vous que le problème
+// identifié en 11.1 est corrigé.
+//
+// Vérifiez l'absence de blocage et de progrès.
+// Réponse :
+
+//************************************************************************//
+//************************************************************************//
