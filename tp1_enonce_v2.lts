@@ -24,7 +24,11 @@ BROKER1 = (connect -> PUBSUB),
 // Question 1.1 (2.5 points)
 // Faites dessinez la composition parallèle via le menu Draw.
 // Expliquer pourquoi la composition parallèle donne un seul état.
-// Réponse : 
+// Réponse : À cause des actions partagées. Interblocage.
+// Si on regarde les premières actions de SUB1 et BROKER1, c'est connect.
+// Action connect est partégée par PUB1, SUB1 et BROKER1. Pour être synchronisé
+// et faire connect, PUB1 doit aussi faire compute qui est bloqué par l'attente 
+// de SUB1 de faire connect.
 //************************************************************************//
 //************************************************************************//
 
