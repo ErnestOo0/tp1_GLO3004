@@ -21,7 +21,7 @@ BROKER1 = (connect -> PUBSUB),
 ||SYSTEM1 = (PUB1 || SUB1 || BROKER1).
 
 //************************************************************************//
-// Question 1.1 (2.5 points)
+// ✅Question 1.1 (2.5 points)
 // Faites dessinez la composition parallèle via le menu Draw.
 // Expliquer pourquoi la composition parallèle donne un seul état.
 // Réponse : À cause des actions partagées. Interblocage.
@@ -45,11 +45,14 @@ BROKER2 = (connect -> PUBSUB),
 ||SYSTEM2 = (PUB2 || SUB2 || BROKER2).
 
 //************************************************************************//
-// Question 2.1 (2.5 points)
+// ✅Question 2.1 (2.5 points)
 // En vous appuyant sur les actions partagées lors de la composition
 // parallèle, dites si les actions connect au processus BROKER2 se font de 
 // façon synchrone ou asynchrone entre le pub et le sub.
-// Réponse : 
+// Réponse : De façon synchrone.
+// L'action connect est partagée avec PUB2, SUB2 et BROKER2. Tous doivent
+// être rendus pour faire l'action connect. Ensuite, l'action pub de BROKER2 est 
+// partagée avec PUB2 et l'action sub de BROKER2 est partagée avec SUB2.
 //************************************************************************//
 //************************************************************************//
 
