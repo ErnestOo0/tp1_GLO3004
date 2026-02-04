@@ -69,15 +69,29 @@ BROKER3 = ({connect_sub, connect_pub} -> PUBSUB),
 ||SYSTEM3 = (PUB3 || SUB3 || BROKER3).
 
 //************************************************************************//
-// Question 3.1 (2.5 points)
+// ✅Question 3.1 (2.5 points)
 // Donnez une spécification FSP différente, mais produisant le même LTSA.
-// Réponse :
+// Réponse : Le "choix"
+PUB4 = (supply -> connect_pub -> pub -> PUB4).
+SUB4 = (connect_sub -> sub -> consume -> SUB4).
+BROKER4 = (connect_sub -> PUBSUB | connect_pub-> PUBSUB),
+  PUBSUB = (pub -> queue -> BROKER4
+	       | sub -> dequeue -> BROKER4).
+||SYSTEM4 = (PUB4 || SUB4 || BROKER4).
 
 //************************************************************************//
 // Question 3.2 (2.5 points)
 // Deux spécifications FSP syntaxiquement différentes peuvent donner le même LTSA.
-// Réponse :
-// Justification :
+// Est-il possible que deux spécifications FSP syntaxiquement différentes peuvent 
+// donner le même LTSA? Si oui, justifiez. Sinon, justifiez.
+// Réponse : Oui
+// Justification : Un des exemples pour lequel LTSA peut donner le même résultat
+// c'est le "choix" qui est synthaxiquement différente, mais donne le même LTSA : 
+// {connect_sub, connect_pub} -> PUBSUB
+// équivalent à (connect_sub -> PUBSUB | connect_pub-> PUBSUB)
+//
+// On a aussi vu dans le cours que LTSA ne montre pas les états non atteignables,
+// que des noms de processus différents peuvent produire le même LTSA, etc.
 
 //************************************************************************//
 
