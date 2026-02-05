@@ -72,12 +72,12 @@ BROKER3 = ({connect_sub, connect_pub} -> PUBSUB),
 // ✅Question 3.1 (2.5 points)
 // Donnez une spécification FSP différente, mais produisant le même LTSA.
 // Réponse : Le "choix"
-PUB4 = (supply -> connect_pub -> pub -> PUB4).
-SUB4 = (connect_sub -> sub -> consume -> SUB4).
-BROKER4 = (connect_sub -> PUBSUB | connect_pub-> PUBSUB),
-  PUBSUB = (pub -> queue -> BROKER4
-	       | sub -> dequeue -> BROKER4).
-||SYSTEM4 = (PUB4 || SUB4 || BROKER4).
+PUB0 = (supply -> connect_pub -> pub -> PUB0).
+SUB0 = (connect_sub -> sub -> consume -> SUB0).
+BROKER0 = (connect_sub -> PUBSUB | connect_pub-> PUBSUB),
+  PUBSUB = (pub -> queue -> BROKER0
+	       | sub -> dequeue -> BROKER0).
+||SYSTEM0 = (PUB0 || SUB0 || BROKER0).
 
 //************************************************************************//
 // Question 3.2 (2.5 points)
@@ -102,11 +102,13 @@ BROKER4 = (connect_sub -> PUBSUB | connect_pub-> PUBSUB),
 // Dans le processus SYSTEM3, il est possible de consommer un message avant 
 // qu'il ne soit produit.
 
+
 //************************************************************************//
 // Question 4.1 (1 point)
 // Définissez une constante N égale à 2 représentant la taille du buffer 
 // du broker
 // Réponse :
+const N = 2
 
 //************************************************************************//
 // Question 4.2 (8 points)
@@ -116,12 +118,22 @@ BROKER4 = (connect_sub -> PUBSUB | connect_pub-> PUBSUB),
 // Donc les publishers ne peuvent plus publier quand N messages sont présents
 // sur le BROKER.
 // Réponse :
+PUB4 = (supply -> connect_pub -> pub -> PUB4).
+SUB4 = (connect_sub -> sub -> consume -> SUB4).
+BROKER4 = BROKER_AUX[0],
+  BROKER_AUX[0] = (connect_pub -> PUBSUB[0]),
+  BROKER_AUX[N] = (connect_sub -> PUBSUB[N]),
+  BROKER_AUX[i:1..N-1] = ({connect_pub, connect_sub} -> PUBSUB[i]),
+	PUBSUB[i:0..N] = (when (i < N) pub -> queue -> BROKER_AUX[i+1]
+					 | when (i > 0) sub -> dequeue -> BROKER_AUX[i-1]).
 
 //************************************************************************//
 // Question 4.3 (1 point)
 // Définissez le processus SYSTEM4 qui met en parallèle PUB3, SUB3 et BROKER4.
 // Vérifiez le blocage et le progrès.
 // Réponse :
+||SYSTEM4 = (PUB4 || SUB4 || BROKER4).
+
 //************************************************************************//
 //************************************************************************//
 
