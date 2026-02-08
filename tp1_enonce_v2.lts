@@ -149,12 +149,18 @@ BROKER4 = BROKER_AUX[0],
 // 2. NB_S = 3 : représentant le nombre de subscribers
 // Réponse :
 
+const NB_P = 2
+const NB_S = 3
+
 //************************************************************************//
 // Question 5.2 (1 point)
 // Défnissez deux ranges R_NB_P et R_NB_S.
 // 1. R_NB_P = 1 à P : représentant l'identifiant de chacun des publishers
 // 2. R_NB_S = 1 à S : représentant l'identifiant de chacun des subscribers.
 // Réponse :
+
+range R_NB_P = 1..NB_P
+range R_NB_S = 1..NB_S
 
 //************************************************************************//
 // Question 5.3 (1 points)
@@ -165,6 +171,8 @@ BROKER4 = BROKER_AUX[0],
 //      et représentant un préfixe pour les actions des subscribers
 // Réponse :
 
+set P = { publisher }
+set S = { subscriber }
 
 //************************************************************************//
 // Question 5.4 (3 points)
@@ -179,12 +187,20 @@ BROKER4 = BROKER_AUX[0],
 //               Il contient deux éléments PREFIXES_PUB et PREFIXES_SUB.
 // Réponse :
 
+set PREFIXES_PUB = { P[R_NB_P] }
+set PREFIXES_SUB = { S[R_NB_S] }
+set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
+
 //************************************************************************//
 // Question 5.5 (4 points)
 // Définissez le processus SYSTEM5 qui met en parallèle PREFIXES_PUB PUB3,
 // PREFIXES_SUB SUB3 et qui se partage PREFIXES BROKER4.
 // Vérifiez le blocage et le progrès.
 // Réponse :
+
+
+
+||SYSTEM5 = ( PREFIXES_PUB:SUB3 || PREFIXES_SUB:SUB3 || PREFIXES:BROKER4).
 
 //************************************************************************//
 //************************************************************************//
