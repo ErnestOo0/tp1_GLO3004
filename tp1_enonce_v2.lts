@@ -254,6 +254,9 @@ BROKER4 = BROKER_AUX[0],
 // Valider le blocage et le progrès. L'un des deux n'est pas respecté.
 // Expliquez pourquoi? Que pouvez-vous en conclure sur votre processus
 // FORBIDDEN?
+// Check progress : indice
+// [prof cours] blocage : programme ne peut plus rien faire - état poubelle
+// progrès : est-ce que toutes mes actions peuvent être faites de manière équitable?
 // Réponse :
 
 //************************************************************************//
