@@ -485,7 +485,7 @@ property FORBIDDEN_VALIDATOR = (
 // SYSTEM8 possède moins de transitions si on se base sur la propriété qui dit
 // que tout se qui sort des transitions affichées mène à l'état d'erreur (pas plus loin!)
 
-// Blocage et progrès ne changement pas.
+// Blocage et progrès ne changent pas (deadlock).
 
 //************************************************************************//
 //************************************************************************//
