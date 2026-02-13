@@ -473,14 +473,14 @@ property FORBIDDEN_VALIDATOR = (
         dequeue_central/PREFIXES.dequeue }.
 
 
-//************************************************************************//
+//************************************************************************ //
 // Question 8.3 (2 points)
 // Comparer SYSTEM7 et SYSTEM8 en terme de nombre d'états, de nombre de
 // transitions, de blocage et de progrès.
 // Expliquez vos résultats.
 // Réponse : 
 // Si la propriété est respectée, alors le nombre d'états reste le même.
-// Par contre, SYSTEM8 fusionne les états ERROR, ce qui peut réduire le nombre d'états.
+// Par contre, SYSTEM8 fusionne les états d'error vers ERROR, ce qui peut réduire le nombre d'états.
 
 // SYSTEM8 possède moins de transitions si on se base sur la propriété qui dit
 // que tout se qui sort des transitions affichées mène à l'état d'erreur (pas plus loin!)
