@@ -437,9 +437,6 @@ FORBIDDEN = STOP + {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}.
 // Valider le blocage et le progrès. L'un des deux n'est pas respecté.
 // Expliquez pourquoi? Que pouvez-vous en conclure sur votre processus
 // FORBIDDEN?
-// Check progress : indice
-// [prof cours] blocage : programme ne peut plus rien faire - état poubelle
-// progrès : est-ce que toutes mes actions peuvent être faites de manière équitable?
 // Réponse :
 
 //************************************************************************//
@@ -458,6 +455,11 @@ FORBIDDEN = STOP + {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}.
 // d'erreur, tandis que toutes les autres actions sont permis.
 // Réponse :
 
+property FORBIDDEN_VALIDATOR = (
+    publisher[1..2].{connect_pub, connect_sub, pub, sub, supply} -> FORBIDDEN_VALIDATOR
+    | subscriber[1..3].{connect_pub, connect_sub, consume, pub, sub} -> FORBIDDEN_VALIDATOR
+).
+
 //************************************************************************//
 // Question 8.2 (2 points)
 // Définissez un processus SYSTEM8 qui met en parallèle SYSTEM7 et
@@ -466,12 +468,24 @@ FORBIDDEN = STOP + {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}.
 // N'oubliez pas les renommages de queue et dequeue.
 // Réponse :
 
+||SYSTEM8 = (SYSTEM7 || FORBIDDEN_VALIDATOR)
+    / { queue_central/PREFIXES.queue,
+        dequeue_central/PREFIXES.dequeue }.
+
+
 //************************************************************************//
 // Question 8.3 (2 points)
 // Comparer SYSTEM7 et SYSTEM8 en terme de nombre d'états, de nombre de
 // transitions, de blocage et de progrès.
 // Expliquez vos résultats.
-// Réponse :
+// Réponse : 
+// Si la propriété est respectée, alors le nombre d'états reste le même.
+// Par contre, SYSTEM8 fusionne les états ERROR, ce qui peut réduire le nombre d'états.
+
+// SYSTEM8 possède moins de transitions si on se base sur la propriété qui dit
+// que tout se qui sort des transitions affichées mène à l'état d'erreur (pas plus loin!)
+
+// Blocage et progrès ne changement pas.
 
 //************************************************************************//
 //************************************************************************//
