@@ -1,7 +1,7 @@
 //************************************************************************//
 //************************************************************************//
 // Noms des membres de l'équipe ******************************************//
-// 1.  	Élie Audette 
+// 1.  	Elie Audette 
 // 2.  	Ernest Niederman 
 // 3. 	Norma-Yan Mercier 
 // 4. 
@@ -295,7 +295,7 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 // actions queue et dequeue préfixées? Comment faire pour que ces actions
 // internes au BROKER4 (queue et dequeue) soient centralisées? Autrement
 // dit, par exemple, 1.queue et 2.queue devraient désigner la même action?
-// Réponse : Il faut les renomer
+// Réponse : Il faut les renommer
 
 //************************************************************************//
 // Question 6.2 (8 points)
@@ -398,7 +398,7 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 // En utilisant le menu Check -> Run -> Default, 
 // que remarquez-vous au niveau des actions?
 // Lesquels ne sont pas synchronisés et pourquoi?
-// Réponse : queue_central et dequeue_central car c'est seulement un renomage de PREFIXES.queue et PREFIXES.dequeue
+// Réponse : queue_central et dequeue_central car c'est seulement un renommage de PREFIXES.queue et PREFIXES.dequeue
 
 //************************************************************************//
 // Question 7.2 (2 points)
@@ -522,6 +522,8 @@ property FORBIDDEN_VALIDATOR = (
 // respectivement une application d'indemnisation et de tarification.
 // Réponse :
 
+set APPS = {i, t}
+
 
 //************************************************************************//
 // Question 10.2 (9 points)
@@ -532,6 +534,11 @@ property FORBIDDEN_VALIDATOR = (
 // 
 // Vérfiez l'absence de blocage et le progrès.
 // Réponse :
+
+||SYSTEM10 = (APPS:SYSTEM7 || APPS:FORBIDDEN_VALIDATOR)
+    / { queue_central/APPS.PREFIXES.queue,
+        dequeue_central/APPS.PREFIXES.dequeue }.
+
 //************************************************************************//
 //************************************************************************//
 
