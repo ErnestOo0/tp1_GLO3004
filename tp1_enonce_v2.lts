@@ -21,7 +21,7 @@ BROKER1 = (connect -> PUBSUB),
 ||SYSTEM1 = (PUB1 || SUB1 || BROKER1).
 
 //************************************************************************//
-// ✅Question 1.1 (2.5 points)
+// Question 1.1 (2.5 points)
 // Faites dessinez la composition parallèle via le menu Draw.
 // Expliquer pourquoi la composition parallèle donne un seul état.
 // Réponse : À cause des actions partagées. Interblocage.
@@ -45,7 +45,7 @@ BROKER2 = (connect -> PUBSUB),
 ||SYSTEM2 = (PUB2 || SUB2 || BROKER2).
 
 //************************************************************************//
-// ✅Question 2.1 (2.5 points)
+// Question 2.1 (2.5 points)
 // En vous appuyant sur les actions partagées lors de la composition
 // parallèle, dites si les actions connect au processus BROKER2 se font de 
 // façon synchrone ou asynchrone entre le pub et le sub.
@@ -69,7 +69,7 @@ BROKER3 = ({connect_sub, connect_pub} -> PUBSUB),
 ||SYSTEM3 = (PUB3 || SUB3 || BROKER3).
 
 //************************************************************************//
-// ✅Question 3.1 (2.5 points)
+// Question 3.1 (2.5 points)
 // Donnez une spécification FSP différente, mais produisant le même LTSA.
 // Réponse : Le "choix"
 PUB0 = (supply -> connect_pub -> pub -> PUB0).
@@ -92,7 +92,6 @@ BROKER0 = (connect_sub -> PUBSUB | connect_pub-> PUBSUB),
 //
 // On a aussi vu dans le cours que LTSA ne montre pas les états non atteignables,
 // que des noms de processus différents peuvent produire le même LTSA, etc.
-
 //************************************************************************//
 
 
@@ -118,21 +117,44 @@ const N = 2
 // Donc les publishers ne peuvent plus publier quand N messages sont présents
 // sur le BROKER.
 // Réponse :
-PUB4 = (supply -> connect_pub -> pub -> PUB4).
-SUB4 = (connect_sub -> sub -> consume -> SUB4).
-BROKER4 = BROKER_AUX[0],
-  BROKER_AUX[0] = (connect_pub -> PUBSUB[0]),
-  BROKER_AUX[N] = (connect_sub -> PUBSUB[N]),
-  BROKER_AUX[i:1..N-1] = ({connect_pub, connect_sub} -> PUBSUB[i]),
-	PUBSUB[i:0..N] = (when (i < N) pub -> queue -> BROKER_AUX[i+1]
-					 | when (i > 0) sub -> dequeue -> BROKER_AUX[i-1]).
+
+BROKER4 = COUNT[0],
+COUNT[i:0..N] = ({connect_pub, connect_sub} -> PUBSUB[i]),
+PUBSUB[i:0..N] = (
+    when (i < N) pub -> queue -> COUNT[i+1]
+    | when (i > 0) sub -> dequeue -> COUNT[i-1]).
+
+// Attention nous avons bien suivi les instructions de ne pas modifier BROKER3
+// BROKER3 peut commencer avec connect_sub ou connect_pub.
+
+// Si nous voulions forcer connect_pub en premier puis connect_sub, voici le code : 
+//PUB4 = (supply -> connect_pub -> pub -> PUB4).
+//SUB4 = (connect_sub -> sub -> consume -> SUB4).
+//BROKER4 = BROKER_AUX[0],
+//  BROKER_AUX[0] = (connect_pub -> PUBSUB[0]),
+//  BROKER_AUX[N] = (connect_sub -> PUBSUB[N]),
+//  BROKER_AUX[i:1..N-1] = ({connect_pub, connect_sub} -> PUBSUB[i]),
+//	PUBSUB[i:0..N] = (when (i < N) pub -> queue -> BROKER_AUX[i+1]
+//					 | when (i > 0) sub -> dequeue -> BROKER_AUX[i-1]).
 
 //************************************************************************//
 // Question 4.3 (1 point)
 // Définissez le processus SYSTEM4 qui met en parallèle PUB3, SUB3 et BROKER4.
 // Vérifiez le blocage et le progrès.
 // Réponse :
-||SYSTEM4 = (PUB4 || SUB4 || BROKER4).
+||SYSTEM4 = (PUB3 || SUB3 || BROKER4).
+// Oui blocage possible et violation du progrès aussi. 
+// Supply -> connect_sub. Si on connect_sub sans avoir publié qqc.
+
+// Trace to DEADLOCK:
+//	supply
+//	connect_sub
+
+// Progress violation for actions: 
+//	{connect_pub, connect_sub, consume, dequeue, pub, queue, sub, supply}
+// Trace to terminal set of states:
+//	supply
+//	connect_sub
 
 //************************************************************************//
 //************************************************************************//
@@ -187,9 +209,9 @@ set S = { subscriber }
 //               Il contient deux éléments PREFIXES_PUB et PREFIXES_SUB.
 // Réponse :
 
-set PREFIXES_PUB = { P[R_NB_P] }
-set PREFIXES_SUB = { S[R_NB_S] }
-set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
+set PREFIXES_PUB = {publisher[R_NB_P]}
+set PREFIXES_SUB = {subscriber[R_NB_S]}
+set PREFIXES = {PREFIXES_PUB, PREFIXES_SUB}
 
 //************************************************************************//
 // Question 5.5 (4 points)
@@ -197,10 +219,13 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 // PREFIXES_SUB SUB3 et qui se partage PREFIXES BROKER4.
 // Vérifiez le blocage et le progrès.
 // Réponse : 
-
-||SYSTEM5 = (PREFIXES_PUB:PUB3 || PREFIXES_SUB:SUB3 || PREFIXES::BROKER4).
-
-// Il n'y a pas de deadlock ni de "progress violation"
+// SYSTEM5 = publisher.1:PUB3 || publisher.2:PUB3 || subscriber.1:SUB3 || subscriber.2:SUB3 || subscriber.3:SUB3 || {publisher.1,publisher.2,subscriber.1,subscriber.2,subscriber.3}::BROKER4
+||SYSTEM5 = (
+    {PREFIXES_PUB}:PUB3 || 
+    {PREFIXES_SUB}:SUB3 || 
+    {PREFIXES}::BROKER4      // Le broker unique accepte les actions des deux ensembles
+).
+// Pas de blocage, ni de violation de progrès.
 
 //************************************************************************//
 //************************************************************************//
@@ -216,7 +241,7 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 // actions queue et dequeue préfixées? Comment faire pour que ces actions
 // internes au BROKER4 (queue et dequeue) soient centralisées? Autrement
 // dit, par exemple, 1.queue et 2.queue devraient désigner la même action?
-// Réponse : Il faut les renommer
+// Réponse : Il faut les renommer.
 
 //************************************************************************//
 // Question 6.2 (8 points)
@@ -225,86 +250,16 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 // préfixées queue et dequeue de telle façon à ce qu'elles soient centralisées.
 // Vérifiez le blocage et le progrès.
 // Réponse :
+//||SYSTEM6 = SYSTEM5 / {queue / {PREFIXES}.queue, dequeue / {PREFIXES}.dequeue}.
+||SYSTEM6 = (
+    {PREFIXES_PUB}:PUB3 || 
+    {PREFIXES_SUB}:SUB3 || 
+    {PREFIXES}::BROKER4      
+	) / {queue / {PREFIXES}.queue, dequeue / {PREFIXES}.dequeue}.
 
-
-||SYSTEM6 = SYSTEM5 / { queue_central/PREFIXES.queue,  dequeue_central/PREFIXES.dequeue}.
-
-// Trace to DEADLOCK:
-//	subscriber.1.connect_pub
-//	subscriber.1.pub
-//	queue_cenrtral
-//	subscriber.1.connect_sub
-//	subscriber.1.pub
-//	queue_cenrtral
-//	subscriber.2.connect_pub
-//	subscriber.2.pub
-//	queue_cenrtral
-//	subscriber.2.connect_sub
-//	subscriber.2.pub
-//	queue_cenrtral
-//	subscriber.3.connect_pub
-//	subscriber.3.pub
-//	queue_cenrtral
-//	subscriber.3.connect_sub
-//	subscriber.3.pub
-//	queue_cenrtral
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.pub
-//	queue_cenrtral
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.sub
-//	dequeue_cenrtral
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.pub
-//	queue_cenrtral
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.sub
-//	dequeue_cenrtral
-
-// Progress violation for actions: 
-//	{dequeue_cenrtral, publisher[1..2].{connect_pub, connect_sub, pub, sub, supply}, queue_cenrtral, subscriber[1..3].{connect_pub, connect_sub, consume, pub, sub}}
-// Trace to terminal set of states:
-//	subscriber.1.connect_pub
-//	subscriber.1.pub
-//	queue_cenrtral
-//	subscriber.1.connect_sub
-//	subscriber.1.pub
-//	queue_cenrtral
-//	subscriber.2.connect_pub
-//	subscriber.2.pub
-//	queue_cenrtral
-//	subscriber.2.connect_sub
-//	subscriber.2.pub
-//	queue_cenrtral
-//	subscriber.3.connect_pub
-//	subscriber.3.pub
-//	queue_cenrtral
-//	subscriber.3.connect_sub
-//	subscriber.3.pub
-//	queue_cenrtral
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.pub
-//	queue_cenrtral
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.sub
-//	dequeue_cenrtral
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.pub
-//	queue_cenrtral
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.sub
-//	dequeue_cenrtral
-//Cycle in terminal set:
-//Actions in terminal set:
-//	{}
+// Pas de blocage, ni de violation de progrès.
+// En effectuant ce renommage, toutes les actions du type: publisher[1].queue, publisher[2].queue, subscriber[1].queue, etc.
+// sont synchronisées sur l'action unique 'queue'. Il en va de même pour 'dequeue'. Valider avec animator.
 
 //************************************************************************//
 //************************************************************************//
@@ -319,7 +274,12 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 // En utilisant le menu Check -> Run -> Default, 
 // que remarquez-vous au niveau des actions?
 // Lesquels ne sont pas synchronisés et pourquoi?
-// Réponse : queue_central et dequeue_central car c'est seulement un renommage de PREFIXES.queue et PREFIXES.dequeue
+// Réponse : Les actions de communication pub, sub, connect_pub et connect_sub apparaissent avec des préfixes
+// et ne sont pas synchronisées entre les publishers/subscribers et le broker.
+// Pourquoi? Car pour LTSA, elle ne sont pas synchronisées car ne porte pas le même nom.
+// Actions partagées seulement sont synchronisées. 
+// BROKER4 est préfixé par {PREFIXES}, ce qui crée des actions comme publisher.1.pub. 
+// Cependant, le processus PUB3 n'est pas informé qu'il doit se synchroniser sur cette étiquette précise!
 
 //************************************************************************//
 // Question 7.2 (2 points)
@@ -330,10 +290,11 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 //                 et le broker, c.-à-d., connect_sub et sub.
 // Réponse :
 
-set PUB_LABELS = {connet_pub, pub}
-set SUB_LABELS = {connet_sub, sub}
+set PUB_LABELS = {connect_pub, pub}
+set SUB_LABELS = {connect_sub, sub}
 
 //************************************************************************//
+
 // Question 7.3 (9 points)
 // En utilisant uniquement le processus STOP, PREFIXES_SUB, PREFIXES_PUB,
 // PUB_LABELS, SUB_LABELS et l'opérateur d'extension de l'alphabet +,
@@ -341,8 +302,12 @@ set SUB_LABELS = {connet_sub, sub}
 // empêchera les actions identifiées en 7.1 d'être exécutées.
 // Réponse :
 
-FORBIDDEN = STOP + {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}.
+// On veut interdire ces actions préfixées non-synchronisées (7.1). 
+// La stratégie : mettre en parallèle un processus qui refuse toujours d'exécuter ces actions.
+// STOP est un processus qui ne fait jamais rien — il bloque tout ce qui est dans son alphabet.
+// Mise en parallèle avec BROKER forcera ces actions à être partagées et donc bloquées.
 
+FORBIDDEN = STOP + {PREFIXES_PUB.SUB_LABELS, PREFIXES_SUB.PUB_LABELS}.
 
 //************************************************************************//
 // Question 7.4 (2 points)
@@ -350,8 +315,12 @@ FORBIDDEN = STOP + {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}.
 // PREFIXES_SUB SUB3, FORBIDDEN et se partage PREFIXES BROKER4.
 // N'oubliez pas les renommages de queue et dequeue.
 // Réponse :
-
-|| SYSTEM7 = (PREFIXES_PUB:PUB3 || PREFIXES_SUB:SUB3 || FORBIDDEN || PREFIXES:BROKER4)/ { queue_central/PREFIXES.queue,  dequeue_central/PREFIXES.dequeue}.
+||SYSTEM7 = (
+    {PREFIXES_PUB}:PUB3 ||
+    {PREFIXES_SUB}:SUB3 ||
+    FORBIDDEN ||
+    {PREFIXES}::BROKER4)
+	 / {queue / {PREFIXES}.queue, dequeue / {PREFIXES}.dequeue}.
 
 //************************************************************************//
 // Question 7.5 (5 points)
@@ -359,6 +328,32 @@ FORBIDDEN = STOP + {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}.
 // Expliquez pourquoi? Que pouvez-vous en conclure sur votre processus
 // FORBIDDEN?
 // Réponse :
+// Pas de blocage, mais il y a violation du progrès.
+// FORBIDDEN est défini comme STOP étendu à l'alphabet {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}. 
+// Cela signifie que FORBIDDEN refuse définitivement d'exécuter ces actions — il ne les accepte jamais.
+// Mis en parallèle avec BROKER4, la synchronisation forcée sur ces actions les rend inaccessibles, c'est trop restrictif!
+
+//Progress violation for actions: 
+//	{publisher[1..2].{connect_pub, pub, supply}, subscriber[1..3].{connect_sub, consume, sub}}
+//Trace to terminal set of states:
+//	publisher.1.supply
+//	publisher.2.supply
+//	publisher.1.connect_sub
+//	subscriber.1.pub
+//	queue
+//	publisher.1.connect_sub
+//	subscriber.1.pub
+//	queue
+//	publisher.1.connect_sub
+//Cycle in terminal set:
+//	publisher.1.sub
+//	dequeue
+//	publisher.1.connect_sub
+//	subscriber.1.pub
+//	queue
+//	publisher.1.connect_sub
+//Actions in terminal set:
+//	{dequeue, publisher[1..2].{connect_sub, sub}, queue, subscriber[1..3].{connect_pub, pub}}
 
 //************************************************************************//
 //************************************************************************//
@@ -375,11 +370,8 @@ FORBIDDEN = STOP + {PREFIXES_SUB.SUB_LABELS, PREFIXES_PUB.PUB_LABELS}.
 // Autrement dit, toutes les actions identifiées en 7.1 mènent à l'état
 // d'erreur, tandis que toutes les autres actions sont permis.
 // Réponse :
-
-property FORBIDDEN_VALIDATOR = (
-    publisher[1..2].{connect_pub, connect_sub, pub, sub, supply} -> FORBIDDEN_VALIDATOR
-    | subscriber[1..3].{connect_pub, connect_sub, consume, pub, sub} -> FORBIDDEN_VALIDATOR
-).
+set ALL_FORBIDDEN = {PREFIXES_PUB.SUB_LABELS, PREFIXES_SUB.PUB_LABELS}
+property FORBIDDEN_VALIDATOR = STOP + ALL_FORBIDDEN.
 
 //************************************************************************//
 // Question 8.2 (2 points)
@@ -388,11 +380,20 @@ property FORBIDDEN_VALIDATOR = (
 // Lors de la compilation, FORBIDDEN_VALIDATOR doit être respectée.
 // N'oubliez pas les renommages de queue et dequeue.
 // Réponse :
+||SYSTEM8 = (
+    {PREFIXES_PUB}:PUB3 ||
+    {PREFIXES_SUB}:SUB3 ||
+    FORBIDDEN ||
+    {PREFIXES}::BROKER4 ||
+	FORBIDDEN_VALIDATOR
+	) / {queue / {PREFIXES}.queue, dequeue / {PREFIXES}.dequeue}.
 
-||SYSTEM8 = (SYSTEM7 || FORBIDDEN_VALIDATOR)
-    / { queue_central/PREFIXES.queue,
-        dequeue_central/PREFIXES.dequeue }.
-
+//Compilation
+//Compiled: PUB3
+//Compiled: SUB3
+//Compiled: FORBIDDEN
+//Compiled: BROKER4
+//Compiled: FORBIDDEN_VALIDATOR
 
 //************************************************************************ //
 // Question 8.3 (2 points)
@@ -400,13 +401,27 @@ property FORBIDDEN_VALIDATOR = (
 // transitions, de blocage et de progrès.
 // Expliquez vos résultats.
 // Réponse : 
-// Si la propriété est respectée, alors le nombre d'états reste le même.
-// Par contre, SYSTEM8 fusionne les états d'error vers ERROR, ce qui peut réduire le nombre d'états.
+// Même nombre d'états (State Space), mais moins de transitions pour SYSTEM8.
+// Au niveau de draw, on voit la différence entre les deux systèmes SYSTEM7 et SYSTEM8. 
+// SYSTEM8 est beaucoup plus petit, donc en accord avec moins de transitions.
 
-// SYSTEM8 possède moins de transitions si on se base sur la propriété qui dit
-// que tout se qui sort des transitions affichées mène à l'état d'erreur (pas plus loin!)
+// Quand on regarde le blocage de SYSTEM8 (Check Safety de SYSTEM8).
+// On n'avait pas de blocage dans SYSTEM7.
+// Trace to property violation in FORBIDDEN_VALIDATOR:
+//	publisher.1.connect_sub
+// La trace publisher.1.connect_sub confirme que votre propriété fonctionne car
+// elle a intercepté une action interdite définie en 7.1
 
-// Blocage et progrès ne changent pas (deadlock).
+// Quand on regarde la violation du progrès de SYSTEM8(Check Progress de SYSTEM8)
+// Tout est arreté quand on atteint l'état ERROR donc on mentionne toutes les actions.
+// SYSTEM7 était dans un état de cycle infini vs arrêt total dans SYSTEM8.
+// Progress violation for actions: 
+// 	{dequeue, publisher[1..2].{connect_pub, connect_sub, pub, sub, supply}, queue, subscriber[1..3].{connect_pub, connect_sub, consume, pub, sub}}
+// Trace to terminal set of states:
+//	publisher.1.connect_sub
+// Cycle in terminal set:
+// Actions in terminal set:
+//	{}
 
 //************************************************************************//
 //************************************************************************//
@@ -422,12 +437,54 @@ property FORBIDDEN_VALIDATOR = (
 // Définissez un processus SYSTEM9 égale à SYSTEM8 avec un masquage des 
 // actions indésirables déterminées à la question 7.1.
 // Réponse :
+// Les actions indésirables identifiées en 7.1 sont les actions de PUB_LABELS et SUB_LABELS 
+// préfixées par PREFIXES_PUB et PREFIXES_SUB respectivement, c'est-à-dire l'ensemble ALL_FORBIDDEN.
+
+||SYSTEM9 = (
+    {PREFIXES_SUB}:PUB3 ||
+    {PREFIXES_SUB}:SUB3 ||
+    FORBIDDEN ||
+    {PREFIXES}::BROKER4)
+	 / {queue / {PREFIXES}.queue, dequeue / {PREFIXES}.dequeue}.
+
+// C'est un SYSTEM8 où on remplace par tau.
 
 //************************************************************************//
 // Question 9.2 (3 points)
 // Comparer SYSTEM8 et SYSTEM9 en terme de blocage et de progrès.
 // Expliquez vos résultats.
-// Réponse :
+// Réponse : 
+
+// Blocage : Très similaire 
+// SYSTEM8 a 
+// Trace to property violation in FORBIDDEN_VALIDATOR:
+//	publisher.1.connect_sub
+// vs SYSTEM9 a
+// Trace to property violation in ?:
+//	tau
+
+// Progrès : Très similaire 
+// SYSTEM8 a 
+//Progress violation for actions: 
+//	{dequeue, publisher[1..2].{connect_pub, connect_sub, pub, sub, supply}, queue, subscriber[1..3].{connect_pub, connect_sub, consume, pub, sub}}
+//Trace to terminal set of states:
+//	publisher.1.connect_sub
+//Cycle in terminal set:
+//Actions in terminal set:
+//	{}
+// vs SYSTEM9 a
+//Progress violation for actions: 
+//	{dequeue, publisher[1..2].{connect_pub, pub, supply}, queue, subscriber[1..3].{connect_sub, consume, sub}}
+//Trace to terminal set of states:
+//	tau
+//Cycle in terminal set:
+//Actions in terminal set:
+//	{}
+
+// Blocage — identique en nature
+// Progrès — la liste des actions en violation est plus courte dans SYSTEM9 car les actions masquées 
+// disparaissent de l'alphabet visible, mais le système reste tout autant bloqué.
+// Leçon générale — le masquage (\) est un outil d'abstraction, pas de correction. Il cache les problèmes sans les résoudre.
 
 //************************************************************************//
 //************************************************************************//
@@ -456,9 +513,14 @@ set APPS = {i, t}
 // Vérfiez l'absence de blocage et le progrès.
 // Réponse :
 
-||SYSTEM10 = (APPS:SYSTEM7 || APPS:FORBIDDEN_VALIDATOR)
-    / { queue_central/APPS.PREFIXES.queue,
-        dequeue_central/APPS.PREFIXES.dequeue }.
+
+||SYSTEM10 = (
+    APPS:({PREFIXES_PUB}:PUB3 
+       || {PREFIXES_SUB}:SUB3 
+       || FORBIDDEN 
+       || {PREFIXES}::BROKER4)
+	   || FORBIDDEN_VALIDATOR)
+	 / {queue / {APPS}.queue, dequeue / {APPS}.dequeue}.
 
 //************************************************************************//
 //************************************************************************//
@@ -473,7 +535,7 @@ set APPS = {i, t}
 // En utilisant le menu Check -> Run -> Default, que remarquez-vous au 
 // niveau des actions? Est-il possible pour un subscriber i de consommer
 // un message de t? Et vice versa? Pourquoi?
-// Réponse : 
+// Réponse :
 
 //************************************************************************//
 // Question 11.2 (8 points)
@@ -494,3 +556,6 @@ set APPS = {i, t}
 
 //************************************************************************//
 //************************************************************************//
+
+
+
