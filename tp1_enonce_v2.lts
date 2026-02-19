@@ -198,88 +198,9 @@ set PREFIXES = { PREFIXES_PUB, PREFIXES_SUB }
 // Vérifiez le blocage et le progrès.
 // Réponse : 
 
-||SYSTEM5 = ( PREFIXES:BROKER4
-   || PREFIXES_PUB:PUB3
-   || PREFIXES_SUB:SUB3
-).
+||SYSTEM5 = (PREFIXES_PUB:PUB3 || PREFIXES_SUB:SUB3 || PREFIXES::BROKER4).
 
-//	la trace suivante produit un deadlock : 	
-//	subscriber.1.connect_pub
-//	subscriber.1.pub
-//	subscriber.1.queue
-//	subscriber.1.connect_sub
-//	subscriber.1.pub
-//	subscriber.1.queue
-//	subscriber.2.connect_pub
-//	subscriber.2.pub
-//	subscriber.2.queue
-//	subscriber.2.connect_sub
-//	subscriber.2.pub
-//	subscriber.2.queue
-//	subscriber.3.connect_pub
-//	subscriber.3.pub
-//	subscriber.3.queue
-//	subscriber.3.connect_sub
-//	subscriber.3.pub
-//	subscriber.3.queue
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.pub
-//	publisher.1.queue
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.sub
-//	publisher.1.dequeue
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.pub
-//	publisher.2.queue
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.sub
-//	publisher.2.dequeue
-
-
-// vérifcation du progres :
-// Progress violation for actions: 
-//	{publisher[1..2].{connect_pub, connect_sub, dequeue, pub, queue, sub, supply}, subscriber[1..3].{connect_pub, connect_sub, consume, dequeue, pub, queue, sub}}
-// Trace to terminal set of states:
-//	subscriber.1.connect_pub
-//	subscriber.1.pub
-//	subscriber.1.queue
-//	subscriber.1.connect_sub
-//	subscriber.1.pub
-//	subscriber.1.queue
-//	subscriber.2.connect_pub
-//	subscriber.2.pub
-//	subscriber.2.queue
-//	subscriber.2.connect_sub
-//	subscriber.2.pub
-//	subscriber.2.queue
-//	subscriber.3.connect_pub
-//	subscriber.3.pub
-//	subscriber.3.queue
-//	subscriber.3.connect_sub
-//	subscriber.3.pub
-//	subscriber.3.queue
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.pub
-//	publisher.1.queue
-//	publisher.1.supply
-//	publisher.1.connect_pub
-//	publisher.1.sub
-//	publisher.1.dequeue
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.pub
-//	publisher.2.queue
-//	publisher.2.supply
-//	publisher.2.connect_pub
-//	publisher.2.sub
-//	publisher.2.dequeue
-// Cycle in terminal set:
-// Actions in terminal set: {}
+// Il n'y a pas de deadlock ni de "progress violation"
 
 //************************************************************************//
 //************************************************************************//
@@ -552,7 +473,7 @@ set APPS = {i, t}
 // En utilisant le menu Check -> Run -> Default, que remarquez-vous au 
 // niveau des actions? Est-il possible pour un subscriber i de consommer
 // un message de t? Et vice versa? Pourquoi?
-// Réponse :
+// Réponse : 
 
 //************************************************************************//
 // Question 11.2 (8 points)
